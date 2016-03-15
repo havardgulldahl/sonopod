@@ -26,11 +26,18 @@ class Library(object):
         #'Read from cache'
         try:
             self.library = pickle.loads(resources.user.read('library.db'))
-            #self.library = []
         except TypeError:
             #new library
             self.library = []
         logging.debug('init Library, currently: %r', self.library)
+
+        """
+        for (i,z) in enumerate(self.library):
+            if z.title is None:
+                del(self.library[i])
+        self.save()
+        """
+                
 
     def save(self):
         'Save self.library to cache'
@@ -59,13 +66,16 @@ class Library(object):
 class PodcastParser(object):
     def __init__(self, url):
         self.url = url
+        self.pc = podcastparser.parse(self.url, urllib.urlopen(self.url))
         self.episodes = []
+
+    def getTitle(self):
+        return self.pc['title']
 
     def getEpisodes(self):
         if len(self.episodes) == 0:
             logging.debug('Slurping podcast url: %r', self.url)
-            pc = podcastparser.parse(self.url, urllib.urlopen(self.url))
-            self.episodes =  [Episode(e['title'], e['description'], e['enclosures'][0]['url']) for e in pc['episodes']]
+            self.episodes =  [Episode(e['title'], e['description'], e['enclosures'][0]['url']) for e in self.pc['episodes']]
         return self.episodes
 
 class SonosPlayer(object):
@@ -111,7 +121,7 @@ if __name__=='__main__':
     if podcasturl is not None: # optional url on command line
         logging.debug('Getting podcast url: %r', podcasturl)
         pod = PodcastParser(podcasturl)
-        lib.add(Podcast(os.path.basename(podcasturl), podcasturl))
+        lib.add(Podcast(pod.getTitle(), podcasturl))
     else:
         # no podcast url on command line, get a list from library
         pc = chooseFrom('Choose podcast', lib.self)
