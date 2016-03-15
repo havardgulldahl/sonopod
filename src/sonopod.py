@@ -90,11 +90,14 @@ def chooseFrom(prompt, iterable):
             idx = int(input(prompt+'> '))-1 # deduct 1 b/c zero indexing
         except ValueError:
             pass
+        except (KeyboardInterrupt, EOFError) as e:
+            print('\n')
+            sys.exit(1)
     return iterable[idx]
 
 
 if __name__=='__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.WARNING)
     import sys
 
     from clint.textui import prompt, validators # get `clint` with pip
@@ -102,6 +105,7 @@ if __name__=='__main__':
     args = arguments.Args()
 
     lib = Library()
+    player = SonosPlayer()
 
     podcasturl = args.get(0)
     if podcasturl is not None: # optional url on command line
@@ -119,6 +123,5 @@ if __name__=='__main__':
     playthis = chooseFrom('Which episode to play', eps)
     logging.debug('Got episode %r from user input', playthis)
 
-    player = SonosPlayer()
     player.play(playthis)
 
