@@ -2,17 +2,48 @@
 
 #stdlib
 import urllib
-import argparse
 import logging
 from collections import namedtuple
+from builtins import input
+
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 # imports, see requirements.txt
-import podcastparser # get it with pip
-import soco # get it with pip
+import podcastparser # get `podcastparser` with pip
+import soco # get `soco` with pip
+from clint import resources # get `clint` with pip
+resources.init('lurtgjort.no', 'SonoPod')
 
+Podcast = namedtuple('Podcast', 'title, url')
 Episode = namedtuple('Episode', 'title, description, url')
 
-class SimplePodcasts(object):
+class Library(object):
+    def __init__(self):
+        #'Read from cache'
+        try:
+            self.library = pickle.loads(resources.user.read('library.db'))
+        except TypeError:
+            #new library
+            self.library = []
+
+    def save(self):
+        'Save self.library to cache'
+        return resources.user.write('library.db', pickle.dumps(self.library))
+
+    def add(self, resource):
+        'Add resource to self.library'
+        self.library.append(resource)
+        return self.save()
+
+    @property
+    def self(self):
+        return self.library
+    
+
+class PodcastParser(object):
     def __init__(self, url):
         self.url = url
         self.episodes = []
@@ -23,7 +54,6 @@ class SimplePodcasts(object):
             pc = podcastparser.parse(self.url, urllib.urlopen(self.url))
             self.episodes =  [Episode(e['title'], e['description'], e['enclosures'][0]['url']) for e in pc['episodes']]
         return self.episodes
-
 
 class SonosPlayer(object):
     def __init__(self):
@@ -37,33 +67,45 @@ class SonosPlayer(object):
                               title=episode.title,
                               start=True)
 
-if __name__=='__main__':
-    logging.basicConfig(level=logging.INFO)
-    import sys
-    import argparse
-    from builtins import input
+def chooseFrom(prompt, iterable):
+    for (idx,e) in enumerate(iterable, start=1):
+        print('[{}]\t {} '.format(idx, e.title.encode('utf-8')))
 
-    parser = argparse.ArgumentParser(
-        description='Play podcasts on you Sonos from the command line')
-    parser.add_argument('podcasturl', help='The url of the podcast')
-    args = parser.parse_args()
-
-    logging.debug('Getting podcast url: %r', args.podcasturl)
-    pods = SimplePodcasts(args.podcasturl)
-    eps = pods.getEpisodes() 
-    logging.debug('Got episodes : %r', eps)
-
-    for (idx,ep) in enumerate(eps, start=1):
-        print('[{}]\t {} '.format(idx, ep.title.encode('utf-8')))
-
-    playthis = -1
-    while not 0 < playthis < len(eps):
+    idx = -1
+    while not 0 < idx < len(iterable):
         try:
-            playthis = int(input('Which episode to play> '))-1 # deduct 1 b/c zero indexing
+            idx = int(input(prompt+'> '))-1 # deduct 1 b/c zero indexing
         except ValueError:
             pass
-    logging.debug('Got episode index %r from user input', playthis)
+    return iterable[idx]
+
+
+if __name__=='__main__':
+    logging.basicConfig(level=logging.DEBUG)
+    import sys
+
+    from clint.textui import prompt, validators # get `clint` with pip
+    from clint import arguments
+    args = arguments.Args()
+
+    lib = Library()
+
+    podcasturl = args.get(0)
+    if podcasturl is not None: # optional url on command line
+        logging.debug('Getting podcast url: %r', podcasturl)
+        pod = PodcastParser(podcasturl)
+        lib.add(podcasturl)
+    else:
+        # no podcast url on command line, get a list from library
+        pod = chooseFrom('Choose podcast', lib.self)
+        
+
+    eps = pod.getEpisodes() 
+    logging.debug('Got episodes : %r', eps)
+
+    playthis = chooseFrom('Which episode to play', eps)
+    logging.debug('Got episode %r from user input', playthis)
 
     player = SonosPlayer()
-    player.play(eps[playthis])
+    player.play(playthis)
 
