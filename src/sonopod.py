@@ -38,7 +38,7 @@ class SonosPlayer(object):
                               start=True)
 
 if __name__=='__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     import sys
     import argparse
     from builtins import input
@@ -54,7 +54,7 @@ if __name__=='__main__':
     logging.debug('Got episodes : %r', eps)
 
     for (idx,ep) in enumerate(eps, start=1):
-        print('[{}]\t {} - {} '.format(idx, ep.title, ep.url))
+        print('[{}]\t {} '.format(idx, ep.title.encode('utf-8')))
 
     playthis = -1
     while not 0 < playthis < len(eps):
