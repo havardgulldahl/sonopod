@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 
 #stdlib
+import os.path
 import urllib
 import logging
 from collections import namedtuple
@@ -25,18 +26,30 @@ class Library(object):
         #'Read from cache'
         try:
             self.library = pickle.loads(resources.user.read('library.db'))
+            #self.library = []
         except TypeError:
             #new library
             self.library = []
+        logging.debug('init Library, currently: %r', self.library)
 
     def save(self):
         'Save self.library to cache'
         return resources.user.write('library.db', pickle.dumps(self.library))
 
     def add(self, resource):
-        'Add resource to self.library'
+        'Add resource to self.library if it doesnt exist'
+        if resource.url in self:    
+            return None
+
+        logging.debug('adding resource to ibrary: %r', resource)
         self.library.append(resource)
         return self.save()
+
+    def __contains__(self, url):
+        for e in self.library:
+            if e.url == url:
+                return True
+        return False
 
     @property
     def self(self):
@@ -72,7 +85,7 @@ def chooseFrom(prompt, iterable):
         print('[{}]\t {} '.format(idx, e.title.encode('utf-8')))
 
     idx = -1
-    while not 0 < idx < len(iterable):
+    while not 0 <= idx < len(iterable):
         try:
             idx = int(input(prompt+'> '))-1 # deduct 1 b/c zero indexing
         except ValueError:
@@ -94,11 +107,11 @@ if __name__=='__main__':
     if podcasturl is not None: # optional url on command line
         logging.debug('Getting podcast url: %r', podcasturl)
         pod = PodcastParser(podcasturl)
-        lib.add(podcasturl)
+        lib.add(Podcast(os.path.basename(podcasturl), podcasturl))
     else:
         # no podcast url on command line, get a list from library
-        pod = chooseFrom('Choose podcast', lib.self)
-        
+        pc = chooseFrom('Choose podcast', lib.self)
+        pod = PodcastParser(pc.url)
 
     eps = pod.getEpisodes() 
     logging.debug('Got episodes : %r', eps)
