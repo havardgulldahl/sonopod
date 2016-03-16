@@ -11,7 +11,7 @@ import re
 import os.path
 
 dirname = os.path.dirname(os.path.abspath(__file__))
-filename = os.path.join(dirname, 'src/__init__.py')
+filename = os.path.join(dirname, 'sonopod/__init__.py')
 src = open(filename).read()
 metadata = dict(re.findall("__([a-z]+)__ = '([^']+)'", src))
 docstrings = re.findall('"""(.*)"""', src)
@@ -48,7 +48,7 @@ setup(name=NAME,
       #package_dir = {'':'src'},
       entry_points={
           'console_scripts': [
-              'sonopod = src.sonopod:main',
+              'sonopod = sonopod:main',
           ]
       },
       **OPTIONS)
