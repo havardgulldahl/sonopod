@@ -13,12 +13,6 @@ from setuptools import setup
 import re
 import os.path
 
-REQUIREMENTS = list(open('requirements.txt'))
-
-OPTIONS = {
-    'install_requires': REQUIREMENTS,
-}
-
 setup(name='sonopod',
       version=__version__,
       description= """ sonopod is a commandline tool for playing podcasts through Sonos speakers """,
@@ -50,5 +44,5 @@ Programming Language :: Python :: 2.7
 Programming Language :: Python :: Implementation :: CPython
 Programming Language :: Python :: Implementation :: PyPy
 Topic :: Utilities""".split('\n'),
-      **OPTIONS)
+      )
 
