@@ -16,6 +16,7 @@ except ImportError:
 import podcastparser # get `podcastparser` with pip
 import soco # get `soco` with pip
 from clint import resources # get `clint` with pip
+from clint.textui import colored  # get `clint` with pip
 resources.init('lurtgjort.no', 'SonoPod')
 
 Podcast = namedtuple('Podcast', 'title, url')
@@ -66,16 +67,26 @@ class Library(object):
 class PodcastParser(object):
     def __init__(self, url):
         self.url = url
-        self.pc = podcastparser.parse(self.url, urllib.urlopen(self.url))
+        # get the 5 last episodes from podcast at url (podcastparser sorts by published date)
+        self.pc = podcastparser.parse(self.url, 
+                                      stream=urllib.urlopen(self.url),
+                                      max_episodes=5)
         self.episodes = []
 
+    def _s(self, s):
+        'Normalize and remove any cruft from string'
+        return podcastparser.squash_whitespace(podcastparser.remove_html_tags(s))
+
     def getTitle(self):
+        'Get Podcast title'
         return self.pc['title']
 
     def getEpisodes(self):
         if len(self.episodes) == 0:
             logging.debug('Slurping podcast url: %r', self.url)
-            self.episodes =  [Episode(e['title'], e['description'], e['enclosures'][0]['url']) for e in self.pc['episodes']]
+            self.episodes =  [Episode(self._s(e['title']),
+                                      self._s(e['description']),
+                                      e['enclosures'][0]['url']) for e in self.pc['episodes']]
         return self.episodes
 
 class SonosPlayer(object):
@@ -90,9 +101,10 @@ class SonosPlayer(object):
                               title=episode.title,
                               start=True)
 
-def chooseFrom(prompt, iterable):
+def chooseFrom(title, prompt, iterable):
+    print(colored.blue(title))
     for (idx,e) in enumerate(iterable, start=1):
-        print('[{}]\t {} '.format(idx, e.title.encode('utf-8')))
+        print(colored.green('[{}]\t {} '.format(idx, e.title.encode('utf-8'))))
 
     idx = -1
     while not 0 <= idx < len(iterable):
@@ -129,13 +141,13 @@ if __name__=='__main__':
         lib.add(Podcast(pod.getTitle(), podcasturl))
     else:
         # no podcast url on command line, get a list from library
-        pc = chooseFrom('Choose podcast', lib.self)
+        pc = chooseFrom('Podcasts in library', 'Choose podcast', lib.self)
         pod = PodcastParser(pc.url)
 
     eps = pod.getEpisodes() 
     logging.debug('Got episodes : %r', eps)
 
-    playthis = chooseFrom('Which episode to play', eps)
+    playthis = chooseFrom('Available episodes', 'Which episode to play', eps)
     logging.debug('Got episode %r from user input', playthis)
 
     player.play(playthis)
