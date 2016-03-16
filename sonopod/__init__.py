@@ -6,4 +6,3 @@ __version__ = '0.1'
 __website__ = 'https://github.com/havardgulldahl/sonopod'
 __license__ = 'GPLv3 License'
 
-

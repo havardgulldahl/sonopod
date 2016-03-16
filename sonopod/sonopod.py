@@ -1,16 +1,23 @@
 #!/usr/bin/env python2.7
 
 #stdlib
+import sys
 import os.path
 import urllib
 import logging
 from collections import namedtuple
 from builtins import input
 
+Podcast = namedtuple('Podcast', 'title, url')
+Episode = namedtuple('Episode', 'title, description, url')
+
+"""
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
+"""
+import pickle
 
 # imports, see requirements.txt
 import podcastparser # get `podcastparser` with pip
@@ -19,12 +26,10 @@ from clint import resources # get `clint` with pip
 from clint.textui import colored  # get `clint` with pip
 resources.init('lurtgjort.no', 'SonoPod')
 
-Podcast = namedtuple('Podcast', 'title, url')
-Episode = namedtuple('Episode', 'title, description, url')
-
 class Library(object):
     def __init__(self):
         #'Read from cache'
+        logging.info('read lib from %r', resources.user)
         try:
             self.library = pickle.loads(resources.user.read('library.db'))
         except TypeError:
@@ -42,7 +47,8 @@ class Library(object):
 
     def save(self):
         'Save self.library to cache'
-        return resources.user.write('library.db', pickle.dumps(self.library))
+        logging.info('pik: %r', pickle.dumps(self.library))
+        return resources.user.write('library.db', pickle.dumps(self.library, protocol=2))
 
     def add(self, resource):
         'Add resource to self.library if it doesnt exist'
@@ -105,6 +111,7 @@ class SonosPlayer(object):
                               start=True)
 
 def chooseFrom(title, prompt, iterable):
+    'Helper function to interactively choose one item from an iterable'
     print(colored.blue(title))
     for (idx,e) in enumerate(iterable, start=1):
         print(colored.green('[{}]\t {} '.format(idx, e.title.encode('utf-8'))))
@@ -121,6 +128,7 @@ def chooseFrom(title, prompt, iterable):
     return iterable[idx]
 
 def main():
+    'Main function. '
     from clint.textui import prompt, validators # get `clint` with pip
     from clint import arguments
     args = arguments.Args()
@@ -152,6 +160,5 @@ def main():
     player.play(playthis)
 
 if __name__=='__main__':
-    logging.basicConfig(level=logging.WARNING)
-    import sys
+    logging.basicConfig(level=logging.INFO)
     main()

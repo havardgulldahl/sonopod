@@ -45,10 +45,9 @@ setup(name=NAME,
       license=LICENSE,
       url=WEBSITE,
       packages=PACKAGES,
-      #package_dir = {'':'src'},
       entry_points={
           'console_scripts': [
-              'sonopod = sonopod:main',
+              'sonopod = sonopod.sonopod:main',
           ]
       },
       **OPTIONS)
