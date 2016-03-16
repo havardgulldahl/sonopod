@@ -36,5 +36,19 @@ setup(name='sonopod',
                         'podcastparser',
                         'clint',
       ],
+      classifiers="""Intended Audience :: Developers
+Intended Audience :: End Users/Desktop
+License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)
+Operating System :: OS Independent
+Operating System :: Microsoft :: Windows
+Operating System :: POSIX
+Operating System :: POSIX :: Linux
+Operating System :: MacOS :: MacOS X
+Environment :: Console
+Topic :: Multimedia :: Sound/Audio :: Players
+Programming Language :: Python :: 2.7
+Programming Language :: Python :: Implementation :: CPython
+Programming Language :: Python :: Implementation :: PyPy
+Topic :: Utilities""".split('\n'),
       **OPTIONS)
 
