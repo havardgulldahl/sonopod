@@ -96,12 +96,12 @@ class PodcastParser(object):
 class SonosPlayer(object):
     def __init__(self):
         self.players = soco.discover()
-        if len(self.players) == 0:
+        if self.players is None or len(self.players) == 0:
             raise Exception('No Sonos players found')
             
         # get default player from config
         try:
-            self.default = soco.SoCo(ip_address=resources.user.read('sonosplayer.ip'))
+            self.default = soco.SoCo(resources.user.read('sonosplayer.ip'))
         except TypeError as e:
             self.default = None
         if self.default is None and len(self.players) == 1: # no default sonos speaker set
