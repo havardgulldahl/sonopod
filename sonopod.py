@@ -8,7 +8,7 @@ import urllib
 import logging
 from collections import namedtuple
 
-if hasattr(__builtins__, 'raw_input'): # python2
+if hasattr(__builtins__, 'raw_input'): # make python2 match python3
     input = raw_input
 
 Podcast = namedtuple('Podcast', 'title, url')
@@ -26,7 +26,7 @@ import pickle
 import podcastparser # get `podcastparser` with pip
 import soco # get `soco` with pip
 from clint import resources # get `clint` with pip
-from clint.textui import colored  # get `clint` with pip
+from clint.textui import puts, colored, indent  # get `clint` with pip
 resources.init('lurtgjort.no', 'SonoPod')
 
 class Library(object):
@@ -41,12 +41,6 @@ class Library(object):
             self.podcasts = []
         logging.info('init podcasts Library, currently: %r', self.podcasts)
 
-        """
-        for (i,z) in enumerate(self.podcasts):
-            if z.title is None:
-                del(self.podcasts[i])
-        self.save()
-        """
 
     def save(self):
         'Save self.podcasts to cache'
@@ -105,7 +99,25 @@ class SonosPlayer(object):
         if len(self.players) == 0:
             raise Exception('No Sonos players found')
             
-        self.default = list(self.players)[0]
+        # get default player from config
+        try:
+            self.default = soco.SoCo(ip_address=resources.user.read('sonosplayer.ip'))
+        except TypeError as e:
+            self.default = None
+        if self.default is None and len(self.players) == 1: # no default sonos speaker set
+            self.default = self.players.pop() # only one player found, set it as default
+            self.setPlayer(self.default)
+
+    def getPlayers(self):
+        'Return a list of players that works for printing by chooseFrom'
+        r = []
+        for p in self.players:
+            p.title = p.player_name
+            r.append(p)
+        return r
+
+    def setPlayer(self, player):
+        resources.user.write('sonosplayer.ip', player.ip_address)
 
     def play(self, episode):
         logging.debug('Playing episode %r on %r', episode, self.default)
@@ -116,7 +128,6 @@ class SonosPlayer(object):
 
 def chooseFrom(title, prompt, iterable):
     'Helper function to interactively choose one item from an iterable'
-    import sys
     print(colored.blue(title))
     for (idx,e) in enumerate(iterable, start=1):
         print(colored.green('[{}]\t {} '.format(idx, e.title.encode('utf-8'))))
@@ -134,20 +145,40 @@ def chooseFrom(title, prompt, iterable):
 
 def main():
     'Main function. '
-    from clint.textui import prompt, validators # get `clint` with pip
-    from clint import arguments
+    from clint import arguments # get `clint` with pip
     args = arguments.Args()
+    
+    if args.flags.contains( ['-h', '--help'] ):
+        puts(colored.magenta('SonoPod is a command line client to feed your Sonos with podcasts'))
+        puts(colored.magenta('Copyright 2016 <havard@gulldahl.no>, GPLv3 licensed'))
+        puts('Usage: {} [-h|--help] [--setsonos] [podcast_url]'.format(os.path.basename(__file__)))
+        with indent(4, quote=' '):
+            puts('[-h|--help]\t\tThis help text')
+            puts('[--setsonos]\tSet default Sonos speaker')
+            puts('[podcast_url]\tAdd a new podcast series to the library')
+            puts('\nIf run without arguments, presents a list of podcasts in the library')
+            sys.exit(0)
+
+    player = SonosPlayer()
+    if args.flags.contains('--setsonos'):
+        # we are started with a flag to set a new default
+        player.setPlayer(chooseFrom('Choose a Sonos speaker', 
+                                    'Set default', 
+                                    player.getPlayers()))
+
+    if player.default is None:
+        # too many players and no default set
+        player.setPlayer(chooseFrom('Choose a Sonos speaker', 
+                                    'Set default', 
+                                    player.getPlayers()))
 
     lib = Library()
-    player = SonosPlayer()
-
-    podcasturl = args.get(0)
+    podcasturl = args.not_flags.get(0) # look at first argument that is not a flag
     if podcasturl is not None: # optional url on command line
         podcasturl = podcastparser.normalize_feed_url(podcasturl)
         if podcasturl is None:
             logging.error('invalid url on command line')
             print('This is not a valid url')
-            import sys
             sys.exit(1)
         logging.debug('Getting podcast url: %r', podcasturl)
         pod = PodcastParser(podcasturl)
