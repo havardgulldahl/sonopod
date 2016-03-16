@@ -31,43 +31,44 @@ class Library(object):
         #'Read from cache'
         logging.info('read lib from %r', resources.user)
         try:
-            self.library = pickle.loads(resources.user.read('library.db'))
-        except TypeError:
+            self.podcasts = [Podcast(**e) for e in pickle.loads(resources.user.read('podcasts.db'))]
+        except TypeError as e:
             #new library
-            self.library = []
-        logging.debug('init Library, currently: %r', self.library)
+            logging.exception(e)
+            self.podcasts = []
+        logging.info('init podcasts Library, currently: %r', self.podcasts)
 
         """
-        for (i,z) in enumerate(self.library):
+        for (i,z) in enumerate(self.podcasts):
             if z.title is None:
-                del(self.library[i])
+                del(self.podcasts[i])
         self.save()
         """
-                
 
     def save(self):
-        'Save self.library to cache'
-        logging.info('pik: %r', pickle.dumps(self.library))
-        return resources.user.write('library.db', pickle.dumps(self.library, protocol=2))
+        'Save self.podcasts to cache'
+        prepared = [dict(vars(p)) for p in self.podcasts]
+        logging.info('pik: %r', prepared)
+        return resources.user.write('podcasts.db', pickle.dumps(prepared, protocol=2))
 
     def add(self, resource):
-        'Add resource to self.library if it doesnt exist'
+        'Add resource to self.podcasts if it doesnt exist'
         if resource.url in self:    
             return None
 
         logging.debug('adding resource to ibrary: %r', resource)
-        self.library.append(resource)
+        self.podcasts.append(resource)
         return self.save()
 
     def __contains__(self, url):
-        for e in self.library:
+        for e in self.podcasts:
             if e.url == url:
                 return True
         return False
 
     @property
     def self(self):
-        return self.library
+        return self.podcasts
     
 
 class PodcastParser(object):
