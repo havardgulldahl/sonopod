@@ -119,6 +119,11 @@ if __name__=='__main__':
 
     podcasturl = args.get(0)
     if podcasturl is not None: # optional url on command line
+        podcasturl = podcastparser.normalize_feed_url(podcasturl)
+        if podcasturl is None:
+            logging.error('invalid url on command line')
+            print('This is not a valid url')
+            sys.exit(1)
         logging.debug('Getting podcast url: %r', podcasturl)
         pod = PodcastParser(podcasturl)
         lib.add(Podcast(pod.getTitle(), podcasturl))
