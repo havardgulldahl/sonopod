@@ -92,6 +92,9 @@ class PodcastParser(object):
 class SonosPlayer(object):
     def __init__(self):
         self.players = soco.discover()
+        if len(self.players) == 0:
+            raise Exception('No Sonos players found')
+            
         self.default = list(self.players)[0]
 
     def play(self, episode):
@@ -117,11 +120,7 @@ def chooseFrom(title, prompt, iterable):
             sys.exit(1)
     return iterable[idx]
 
-
-if __name__=='__main__':
-    logging.basicConfig(level=logging.WARNING)
-    import sys
-
+def main():
     from clint.textui import prompt, validators # get `clint` with pip
     from clint import arguments
     args = arguments.Args()
@@ -152,3 +151,7 @@ if __name__=='__main__':
 
     player.play(playthis)
 
+if __name__=='__main__':
+    logging.basicConfig(level=logging.WARNING)
+    import sys
+    main()
