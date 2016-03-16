@@ -29,8 +29,12 @@ setup(name='sonopod',
       #scripts=['sonopod.py'],
       entry_points={
           'console_scripts': [
-              'sonopod = sonopod:main',
+              'sonopod = sonopod.sonopod:main',
           ]
       },
+      install_requires=['soco>=0.11',
+                        'podcastparser',
+                        'clint',
+      ],
       **OPTIONS)
 
