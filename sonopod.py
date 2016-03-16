@@ -1,12 +1,15 @@
 #!/usr/bin/env python2.7
 
 #stdlib
+from __future__ import absolute_import, division, print_function
 import sys
 import os.path
 import urllib
 import logging
 from collections import namedtuple
-from builtins import input
+
+if hasattr(__builtins__, 'raw_input'): # python2
+    input = raw_input
 
 Podcast = namedtuple('Podcast', 'title, url')
 Episode = namedtuple('Episode', 'title, description, url')
@@ -34,7 +37,7 @@ class Library(object):
             self.podcasts = [Podcast(**e) for e in pickle.loads(resources.user.read('podcasts.db'))]
         except TypeError as e:
             #new library
-            logging.exception(e)
+            #logging.exception(e)
             self.podcasts = []
         logging.info('init podcasts Library, currently: %r', self.podcasts)
 
@@ -113,6 +116,7 @@ class SonosPlayer(object):
 
 def chooseFrom(title, prompt, iterable):
     'Helper function to interactively choose one item from an iterable'
+    import sys
     print(colored.blue(title))
     for (idx,e) in enumerate(iterable, start=1):
         print(colored.green('[{}]\t {} '.format(idx, e.title.encode('utf-8'))))
@@ -143,6 +147,7 @@ def main():
         if podcasturl is None:
             logging.error('invalid url on command line')
             print('This is not a valid url')
+            import sys
             sys.exit(1)
         logging.debug('Getting podcast url: %r', podcasturl)
         pod = PodcastParser(podcasturl)
@@ -161,5 +166,5 @@ def main():
     player.play(playthis)
 
 if __name__=='__main__':
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.WARNING)
     main()
