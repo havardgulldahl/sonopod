@@ -20,12 +20,7 @@ setup(name='sonopod',
       author_email=__author__,
       license=__license__,
       url=__website__,
-      #scripts=['sonopod.py'],
-      entry_points={
-          'console_scripts': [
-              'sonopod = sonopod.sonopod:main',
-          ]
-      },
+      scripts=['sonopod.py'],
       install_requires=['soco>=0.11',
                         'podcastparser',
                         'clint',
