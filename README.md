@@ -5,6 +5,7 @@ A simple command line podcast player for Sonos
 
 ### help text
 ```bash
+
 $ ./sonopod.py --help
 SonoPod is a command line client to feed your Sonos with podcasts
 Copyright 2016 <havard@gulldahl.no>, GPLv3 licensed
@@ -19,6 +20,7 @@ Usage: sonopod.py [-h|--help] [--setsonos] [podcast_url]
 ### set Sonos speaker
 
 ```bash
+
 $ ./sonopod.py --setsonos
 Choose a Sonos speaker
 [1]	 Arbeidsrom
@@ -43,6 +45,7 @@ Which episode to play>
 ### listen to podcast from library
 
 ```bash
+
 $ ./sonopod.py
 Podcasts in library
 [1]	 NRK – 200 år på 200 minutter
