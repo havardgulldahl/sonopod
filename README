@@ -1,6 +1,14 @@
 # sonopod
 A simple command line podcast player for Sonos
 
+## why?
+
+This little utilty is great for building a remote control for Sonos. 
+
+The primary use case is for a headless Raspberry pi, reading RFID cards to choose podcasts to play on the Sonos speaker.
+
+If you find any other use for it, add your story!
+
 ## examples
 
 ### help text
@@ -64,3 +72,15 @@ Which episode to play> 2
 ```
 
 
+## ChangeLog
+
+### 0.1.1 (2016-03-20)
+
+* Tool is installed as `mopidy.py` in your path
+* Add code to choose Sonos speaker if you have more than one. Run with `--setsonos` to set speaker.
+* Add command line option `--help`
+* Don't depend on the `builtin` module
+
+### 0.1 (Unreleased)
+
+* Working proof of concept
