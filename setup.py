@@ -16,7 +16,7 @@ import os.path
 setup(name='sonopod',
       version=__version__,
       description= """ sonopod is a commandline tool for playing podcasts through Sonos speakers """,
-      long_description=open('README').read(),
+      long_description=open('README.rst').read(),
       author=__author__,
       author_email=__author__,
       license=__license__,
