@@ -24,15 +24,16 @@ help text
     $ ./sonopod.py --help
     SonoPod is a command line client to feed your Sonos with podcasts
     Copyright 2016 <havard@gulldahl.no>, GPLv3 licensed
-    Usage: sonopod.py [-h|--help] [--setsonos] [podcast_url]
+    Usage: sonopod [-h|--help] [--setsonos] [--volume NN] [podcast_url]
         [-h|--help]     This help text
         [--setsonos]    Set default Sonos speaker
-        [podcast_url]   Add a new podcast series to the library
+        [--volume NN]   Set volume of default speaker to N, between 0 (silent) and 90 (max)
+        [podcast_url]   Add a new podcast series to the library, and pick an episode to play
 
         If run without arguments, presents a list of podcasts in the library
 
-set Sonos speaker
-~~~~~~~~~~~~~~~~~
+set default Sonos speaker
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: bash
 
@@ -41,6 +42,14 @@ set Sonos speaker
     [1]  Arbeidsrom
     [2]  Stue
     Set default>
+
+set volume of default speaker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: bash
+
+    $ ./sonopod.py --volume=21
+    New volume of player is 21
 
 add podcast series
 ~~~~~~~~~~~~~~~~~~
@@ -86,7 +95,7 @@ ChangeLog
 0.1.2 (2016-06-03)
 ~~~~~~~~~~~~~~~~~~
 
-- Add ``--volume XX`` option to set volume on default speaker.
+- Add ``--volume=XX`` option to set volume on default speaker.
 
 0.1.1 (2016-03-20)
 ~~~~~~~~~~~~~~~~~~
