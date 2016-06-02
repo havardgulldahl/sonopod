@@ -83,10 +83,15 @@ listen to podcast from library
 ChangeLog
 ---------
 
+0.1.2 (2016-06-03)
+~~~~~~~~~~~~~~~~~~
+
+- Add ``--volume XX`` option to set volume on default speaker.
+
 0.1.1 (2016-03-20)
 ~~~~~~~~~~~~~~~~~~
 
--  Tool is installed as ``mopidy.py`` in your path
+-  Tool is installed as ``sonopod.py`` in your path
 -  Add code to choose Sonos speaker if you have more than one. Run with
    ``--setsonos`` to set speaker.
 -  Add command line option ``--help``
