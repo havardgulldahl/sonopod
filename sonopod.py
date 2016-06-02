@@ -128,9 +128,9 @@ class SonosPlayer(object):
 
 def chooseFrom(title, prompt, iterable):
     'Helper function to interactively choose one item from an iterable'
-    print(colored.blue(title))
+    puts(colored.blue(title))
     for (idx,e) in enumerate(iterable, start=1):
-        print(colored.green('[{}]\t {} '.format(idx, e.title.encode('utf-8'))))
+        puts(colored.green('[{}]\t {} '.format(idx, e.title.encode('utf-8'))))
 
     idx = -1
     while not 0 <= idx < len(iterable):
@@ -139,7 +139,7 @@ def chooseFrom(title, prompt, iterable):
         except ValueError:
             pass
         except (KeyboardInterrupt, EOFError) as e:
-            print('\n')
+            puts('\n')
             sys.exit(1)
     return iterable[idx]
 
@@ -161,18 +161,17 @@ def main():
             sys.exit(0)
 
     player = SonosPlayer()
-    ag = args.grouped
-    if ag.has_key('--volume'):
-        v = ag.pop('--volume').get(0)
+    volflag = args.flags.start_with('--volume=')
+    if volflag is not None:
         try:
-            vol = int(v, 10)
+            vol = int(volflag.get(0)[len('--volume='):], 10)
         except:
             vol = None
         if vol is None or not -1 < vol < 91:
             puts(colored.red('Need a value for volume between 0 (silent) and 90 (max)'))
             sys.exit(1)
 
-        logging.debug('Setting volume to {}'.format(v))
+        logging.debug('Setting volume to {}'.format(vol))
         player.default.volume = vol
         puts(colored.green('New volume of player is {}'.format(player.default.volume)))
 
@@ -194,7 +193,7 @@ def main():
         podcasturl = podcastparser.normalize_feed_url(podcasturl)
         if podcasturl is None:
             logging.error('invalid url on command line')
-            print('This is not a valid url')
+            puts(colored.red('This is not a valid url'))
             sys.exit(1)
         logging.debug('Getting podcast url: %r', podcasturl)
         pod = PodcastParser(podcasturl)
