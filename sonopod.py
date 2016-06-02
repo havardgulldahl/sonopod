@@ -151,15 +151,31 @@ def main():
     if args.flags.contains( ['-h', '--help'] ):
         puts(colored.magenta('SonoPod is a command line client to feed your Sonos with podcasts'))
         puts(colored.magenta('Copyright 2016 <havard@gulldahl.no>, GPLv3 licensed'))
-        puts('Usage: {} [-h|--help] [--setsonos] [podcast_url]'.format(os.path.basename(__file__)))
+        puts('Usage: {} [-h|--help] [--setsonos] [--volume NN] [podcast_url]'.format(os.path.basename(__file__)))
         with indent(4, quote=' '):
             puts('[-h|--help]\t\tThis help text')
             puts('[--setsonos]\tSet default Sonos speaker')
-            puts('[podcast_url]\tAdd a new podcast series to the library')
+            puts('[--volume NN]\tSet volume of default speaker to N, between 0 (silent) and 90 (max)')
+            puts('[podcast_url]\tAdd a new podcast series to the library, and pick an episode to play')
             puts('\nIf run without arguments, presents a list of podcasts in the library')
             sys.exit(0)
 
     player = SonosPlayer()
+    ag = args.grouped
+    if ag.has_key('--volume'):
+        v = ag.pop('--volume').get(0)
+        try:
+            vol = int(v, 10)
+        except:
+            vol = None
+        if vol is None or not -1 < vol < 91:
+            puts(colored.red('Need a value for volume between 0 (silent) and 90 (max)'))
+            sys.exit(1)
+
+        logging.debug('Setting volume to {}'.format(v))
+        player.default.volume = vol
+        puts(colored.green('New volume of player is {}'.format(player.default.volume)))
+
     if args.flags.contains('--setsonos'):
         # we are started with a flag to set a new default
         player.setPlayer(chooseFrom('Choose a Sonos speaker', 
